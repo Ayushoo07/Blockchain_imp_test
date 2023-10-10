@@ -1,17 +1,26 @@
 use actix_web::{HttpResponse, Result};
 use chrono::Local;
+use hex::encode;
 use permutohedron::LexicalPermutation;
+use ring::digest::{Context, SHA256};
 use rocksdb::{IteratorMode, Options, DB};
 
-use crate::{utils::Block};
+use crate::utils::Block;
 
 pub fn create_genesis_block() {
+    let mut curr_hash = Context::new(&SHA256);
+
+    let curr_timestamp = Local::now().to_string();
+
+    // Calculate the SHA-256 hash
+    curr_hash.update((curr_timestamp.to_string() + "gensis_block").as_bytes());
+
     let genesis_block = Block {
         id: "abcdefghijklmnopqrstuvwxyz".to_string(),
         prev_hash: "".to_string(),
-        curr_hash: "xxxxx".to_string(),
+        curr_hash: encode(curr_hash.finish()),
         data: "genesis".to_string(),
-        timestamp: Local::now().to_string(),
+        timestamp: curr_timestamp,
     };
     let path = "./my_db";
     let mut opts = Options::default();
@@ -28,7 +37,7 @@ pub fn create_genesis_block() {
 pub async fn get_blocks() -> Result<HttpResponse> {
     let path = "./my_db";
     let mut opts = Options::default();
-   // opts.create_if_missing(true);
+    // opts.create_if_missing(true);
     let db = DB::open(&opts, path).expect("Failed to open database");
     let iter = db.iterator(IteratorMode::From(&[0u8], rocksdb::Direction::Forward));
     for item in iter {

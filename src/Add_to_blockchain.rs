@@ -1,5 +1,7 @@
 use chrono::Local;
+use hex::encode;
 use permutohedron::LexicalPermutation;
+use ring::digest::{Context, SHA256};
 use rocksdb::{Options, IteratorMode, DB};
 
 use crate::utils::Block;
@@ -28,15 +30,24 @@ pub async fn add_to_blockchain(data: String) -> Result<(), reqwest::Error> {
         let cnt = 1;
         match val {
             Ok(last) => {
+                // Calculate Id
                 let mut chars: Vec<char> = last.id.chars().collect();
                 chars.next_permutation();
                 let latest:String =chars.iter().collect();
+
+                // calculate Hash
+                let mut curr_hash = Context::new(&SHA256);
+
+                let curr_timestamp = Local::now().to_string();
+            
+                // Calculate the SHA-256 hash
+                curr_hash.update((curr_timestamp.to_string() + "gensis_block").as_bytes());
                 block = Block {
                     id: latest,
                     prev_hash: last.curr_hash.to_string(),
-                    curr_hash: "newblock".to_string(),
+                    curr_hash:encode(curr_hash.finish()),
                     data,
-                    timestamp: Local::now().to_string(),
+                    timestamp: curr_timestamp
                 };
                 println!("{:?}",block);
                 let block_serialized = serde_json::to_string(&block).expect("Failed to serialize");
