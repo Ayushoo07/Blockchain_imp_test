@@ -2,6 +2,7 @@
 pub mod utils;
 pub mod take_transaction;
 pub mod functions;
+pub mod Add_to_blockchain;
 use actix_web::{web, App, HttpServer};
 use functions::{create_genesis_block, get_blocks};
 use utils::REMOTE_ADDRESS;

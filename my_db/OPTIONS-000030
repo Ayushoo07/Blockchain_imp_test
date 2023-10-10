@@ -75,7 +75,7 @@
   is_fd_close_on_exec=true
   enforce_single_del_contracts=true
   create_missing_column_families=false
-  create_if_missing=true
+  create_if_missing=false
   use_fsync=false
   wal_filter=nullptr
   allow_2pc=false
