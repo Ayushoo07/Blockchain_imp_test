@@ -4,17 +4,11 @@ use permutohedron::LexicalPermutation;
 use ring::digest::{Context, SHA256};
 use rocksdb::{Options, IteratorMode, DB};
 
-use crate::utils::Block;
+use crate::utils::{Block, Transaction};
 
 
-pub async fn add_to_blockchain(data: String) -> Result<(), reqwest::Error> {
-    let mut block = Block {
-        id: "".to_string(),
-        prev_hash: "".to_string(),
-        curr_hash: "".to_string(),
-        data: "".to_string(),
-        timestamp: "".to_string(),
-    };
+pub async fn add_to_blockchain(data: Transaction) -> Result<(), reqwest::Error> {
+    
     let path = "./my_db";
     let mut opts = Options::default();
     //opts.create_if_missing(true);
@@ -42,11 +36,11 @@ pub async fn add_to_blockchain(data: String) -> Result<(), reqwest::Error> {
             
                 // Calculate the SHA-256 hash
                 curr_hash.update((curr_timestamp.to_string() + "gensis_block").as_bytes());
-                block = Block {
+                let block = Block {
                     id: latest,
                     prev_hash: last.curr_hash.to_string(),
                     curr_hash:encode(curr_hash.finish()),
-                    data,
+                    data:data,
                     timestamp: curr_timestamp
                 };
                 println!("{:?}",block);

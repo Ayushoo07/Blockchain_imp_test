@@ -5,7 +5,7 @@ use permutohedron::LexicalPermutation;
 use ring::digest::{Context, SHA256};
 use rocksdb::{IteratorMode, Options, DB};
 
-use crate::utils::Block;
+use crate::utils::{Block, Transaction, Status};
 
 pub fn create_genesis_block() {
     let mut curr_hash = Context::new(&SHA256);
@@ -14,12 +14,23 @@ pub fn create_genesis_block() {
 
     // Calculate the SHA-256 hash
     curr_hash.update((curr_timestamp.to_string() + "gensis_block").as_bytes());
+    let gensis_transaction=Transaction
+    {
+        id:"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx".to_string(),
+        from:"genesis".to_string(),
+        to:"genesis".to_string(),
+        status:Status::ACCEPTED,
+        amount:0,
+        gas_fees:0,
+        timestamp:Local::now().to_string()
+
+    };
 
     let genesis_block = Block {
         id: "abcdefghijklmnopqrstuvwxyz".to_string(),
         prev_hash: "".to_string(),
         curr_hash: encode(curr_hash.finish()),
-        data: "genesis".to_string(),
+        data: gensis_transaction,
         timestamp: curr_timestamp,
     };
     let path = "./my_db";

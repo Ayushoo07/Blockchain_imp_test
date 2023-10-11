@@ -1,12 +1,14 @@
 
 pub mod utils;
-pub mod take_transaction;
 pub mod functions;
 pub mod Add_to_blockchain;
+pub mod mempool;
 use actix_web::{web, App, HttpServer};
 use functions::{create_genesis_block, get_blocks};
+
+use mempool::transaction::{add_transaction, get_all_transactions, pick_transaction};
 use utils::REMOTE_ADDRESS;
-use take_transaction::take_transaction;
+
 
 
 fn add_node(node : &'static str ) {
@@ -26,8 +28,11 @@ async fn main() -> std::io::Result<()> {
     
     HttpServer::new(|| 
         App::new()
-                .route("/take_transaction", web::post().to(take_transaction))
+                .route("/take_transaction", web::post().to(pick_transaction))
                 .route("getblocks",web::get().to(get_blocks))
+                .route("/new_transaction",web::post().to(add_transaction))
+                .route("/get_transactions",web::get().to(get_all_transactions))
+
     )
     .bind(("0.0.0.0", 8080))?
     .run()
