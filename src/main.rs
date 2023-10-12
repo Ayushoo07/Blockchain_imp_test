@@ -3,10 +3,12 @@ pub mod utils;
 pub mod functions;
 pub mod Add_to_blockchain;
 pub mod mempool;
+pub mod accounts;
+use accounts::data::{add_account, get_all_accounts};
 use actix_web::{web, App, HttpServer};
 use functions::{create_genesis_block, get_blocks};
 
-use mempool::transaction::{add_transaction, get_all_transactions, pick_transaction};
+use mempool::{transaction::{add_transaction, pick_transaction}, get_transactions::{get_all_transactions, get_all_pending_transactions}};
 use utils::REMOTE_ADDRESS;
 
 
@@ -32,6 +34,9 @@ async fn main() -> std::io::Result<()> {
                 .route("getblocks",web::get().to(get_blocks))
                 .route("/new_transaction",web::post().to(add_transaction))
                 .route("/get_transactions",web::get().to(get_all_transactions))
+                .route("/add_account",web::post().to(add_account))
+                .route("/getall_accounts",web::get().to(get_all_accounts))
+                .route("/get_all_pending_transactions",web::get().to(get_all_pending_transactions))
 
     )
     .bind(("0.0.0.0", 8080))?

@@ -19,7 +19,7 @@ pub struct Block
    pub id:String,
    pub prev_hash:String,
    pub curr_hash:String,
-   pub data:Transaction,
+   pub data:Vec<Transaction>,
    pub timestamp:String
 }
 
@@ -50,4 +50,21 @@ pub struct TransactionInfo
    pub to:String,
    pub from:String,
    pub amount:i64,
+
+}
+#[derive(Debug, Serialize, Deserialize)]
+
+pub struct AccountInfo
+{
+   pub name:String,
+   pub balance:i64,
+}
+#[derive(Debug, Serialize, Deserialize)]
+
+pub struct Account
+{
+   pub name:String,
+   pub id:String,
+   pub balance:i64,
+   pub creation_timestamp:String
 }

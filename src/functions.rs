@@ -25,12 +25,14 @@ pub fn create_genesis_block() {
         timestamp:Local::now().to_string()
 
     };
+    let mut gensis_transaction_vec=Vec::new();
+    gensis_transaction_vec.push(gensis_transaction);
 
     let genesis_block = Block {
         id: "abcdefghijklmnopqrstuvwxyz".to_string(),
         prev_hash: "".to_string(),
         curr_hash: encode(curr_hash.finish()),
-        data: gensis_transaction,
+        data: gensis_transaction_vec,
         timestamp: curr_timestamp,
     };
     let path = "./my_db";
@@ -45,20 +47,38 @@ pub fn create_genesis_block() {
     )
     .expect("Failed to store genesis block");
 }
-pub async fn get_blocks() -> Result<HttpResponse> {
+
+
+pub async fn get_blocks() -> Result<HttpResponse, actix_web::Error>  {
     let path = "./my_db";
     let mut opts = Options::default();
     // opts.create_if_missing(true);
     let db = DB::open(&opts, path).expect("Failed to open database");
     let iter = db.iterator(IteratorMode::From(&[0u8], rocksdb::Direction::Forward));
+
+    let mut blocks_list=Vec::new();
     for item in iter {
         let (key, value) = item.unwrap();
         let string_data = String::from_utf8_lossy(&key);
         let string_val = String::from_utf8_lossy(&value);
         let val = serde_json::from_str::<Block>(&string_val);
 
-        println!("Saw {:?} {:?}", string_data, val);
-        println!(" ");
+        match val {
+            Ok(block)=>
+            {
+                blocks_list.push(block);
+            }
+            Err(err)=>
+            {
+
+            }
+            
+        }
     }
-    Ok(HttpResponse::Ok().json("All blocks get Successfully"))
+    let response_json = serde_json::to_string(&blocks_list).expect("Failed to serialize response");
+
+    // Return the response as JSON
+    Ok(HttpResponse::Ok()
+        .content_type("application/json")
+        .body(response_json))
 }

@@ -7,7 +7,7 @@ use rocksdb::{Options, IteratorMode, DB};
 use crate::utils::{Block, Transaction};
 
 
-pub async fn add_to_blockchain(data: Transaction) -> Result<(), reqwest::Error> {
+pub async fn add_to_blockchain(data: Vec<Transaction>) -> Result<(), reqwest::Error> {
     
     let path = "./my_db";
     let mut opts = Options::default();
