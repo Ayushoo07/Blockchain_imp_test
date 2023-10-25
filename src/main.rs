@@ -8,7 +8,7 @@ use accounts::data::{add_account, get_all_accounts};
 use actix_web::{web, App, HttpServer};
 use functions::{create_genesis_block, get_blocks};
 
-use mempool::{transaction::{add_transaction, pick_transaction}, get_transactions::{get_all_transactions, get_all_pending_transactions}};
+use mempool::{transaction::{add_transaction, pick_transaction}, get_transactions::{get_all_transactions, get_all_pending_transactions, get_transaction_by_id}};
 use utils::REMOTE_ADDRESS;
 
 
@@ -37,6 +37,8 @@ async fn main() -> std::io::Result<()> {
                 .route("/add_account",web::post().to(add_account))
                 .route("/getall_accounts",web::get().to(get_all_accounts))
                 .route("/get_all_pending_transactions",web::get().to(get_all_pending_transactions))
+                .service(get_transaction_by_id)
+            
 
     )
     .bind(("0.0.0.0", 8080))?
